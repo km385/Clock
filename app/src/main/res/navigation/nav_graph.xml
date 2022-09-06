@@ -7,6 +7,17 @@
     <fragment
         android:id="@+id/clockFragment"
         android:name="jf.clock.ClockFragment"
-        android:label="activity_fragment"
-        tools:layout="@layout/clock_fragment" />
+        android:label="clock_fragment"
+        tools:layout="@layout/clock_fragment" >
+    </fragment>
+    <fragment
+        android:id="@+id/timerFragment"
+        android:name="jf.clock.TimerFragment"
+        android:label="timer_fragment"
+        tools:layout="@layout/timer_fragment" />
+    <fragment
+        android:id="@+id/stopWatchFragment"
+        android:name="jf.clock.StopWatchFragment"
+        android:label="stopwatch_fragment"
+        tools:layout="@layout/stopwatch_fragment" />
 </navigation>
