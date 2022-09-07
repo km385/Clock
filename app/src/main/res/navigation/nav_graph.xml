@@ -9,15 +9,29 @@
         android:name="jf.clock.ClockFragment"
         android:label="clock_fragment"
         tools:layout="@layout/clock_fragment" >
+        <action
+            android:id="@+id/action_clockFragment_to_timePicker"
+            app:destination="@id/timePicker" />
     </fragment>
     <fragment
         android:id="@+id/timerFragment"
         android:name="jf.clock.TimerFragment"
         android:label="timer_fragment"
-        tools:layout="@layout/timer_fragment" />
+        tools:layout="@layout/timer_fragment" >
+    </fragment>
     <fragment
         android:id="@+id/stopWatchFragment"
         android:name="jf.clock.StopWatchFragment"
         android:label="stopwatch_fragment"
         tools:layout="@layout/stopwatch_fragment" />
+    <dialog
+        android:id="@+id/timePicker"
+        android:name="jf.clock.TimePicker"
+        android:label="time_setter"
+        tools:layout="@layout/time_setter" >
+        <argument
+            android:name="date"
+            app:argType="java.util.Date" />
+    </dialog>
+
 </navigation>

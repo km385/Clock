@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 
 import androidx.annotation.NonNull;
@@ -14,11 +13,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 public class ClockFragment extends Fragment {
     private static final String TAG = "ClockFragment";
 
     private RecyclerView mRecyclerView;
     private AlarmAdapter mAdapter;
+    private Alarm mAlarm;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,13 +43,24 @@ public class ClockFragment extends Fragment {
 
         mRecyclerView = view.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));
+        List<Alarm> alarms = new ArrayList<>();
+        for (int i = 0; i < 5;i++){
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY,i);
+            calendar.set(Calendar.MINUTE, i);
+            Alarm alarm = new Alarm();
+            alarm.setAlarmTime(calendar.getTime());
+            alarms.add(alarm);
+        }
+
         String[] yoyo = {
-                "element",
-                "alarm",
-                "cos innego"
+                "06:30",
+                "09:00",
+                "04:20"
         };
 
-        mAdapter = new AlarmAdapter(yoyo);
+
+        mAdapter = new AlarmAdapter(alarms);
         mRecyclerView.setAdapter(mAdapter);
 
     }
