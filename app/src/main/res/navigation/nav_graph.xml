@@ -9,9 +9,6 @@
         android:name="jf.clock.ClockFragment"
         android:label="clock_fragment"
         tools:layout="@layout/clock_fragment" >
-        <action
-            android:id="@+id/action_clockFragment_to_timePicker"
-            app:destination="@id/timePicker" />
     </fragment>
     <fragment
         android:id="@+id/timerFragment"
@@ -29,9 +26,7 @@
         android:name="jf.clock.TimePicker"
         android:label="time_setter"
         tools:layout="@layout/time_setter" >
-        <argument
-            android:name="date"
-            app:argType="java.util.Date" />
+
     </dialog>
 
 </navigation>

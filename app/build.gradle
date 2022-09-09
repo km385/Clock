@@ -3,6 +3,8 @@ plugins {
     id 'androidx.navigation.safeargs'
 }
 
+
+
 android {
     compileSdk 32
 
@@ -22,6 +24,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs += 'build/generated/source/navigation-args'
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
