@@ -1,5 +1,6 @@
 package jf.clock;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,35 +11,43 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentResultListener;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.navigation.NavBackStackEntry;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import jf.clock.data.Alarm;
+import jf.clock.data.AlarmDao;
+import jf.clock.data.AppDatabase;
+
 public class ClockFragment extends Fragment {
     private static final String TAG = "ClockFragment";
 
     private RecyclerView mRecyclerView;
+    private ItemTouchHelper mItemTouchHelper;
     private AlarmAdapter mAdapter;
     private List<Alarm> mAlarmList;
-    private Alarm mAlarm;
+
+    private AppDatabase mDb;
+    private AlarmDao mAlarmDao;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        mDb = Room.databaseBuilder(requireContext(),
+                AppDatabase.class, "Sample.db")
+                .build();
+        mAlarmDao = mDb.mAlarmDao();
+        // new LoadAlarms().execute();
+
         super.onCreate(savedInstanceState);
     }
 
@@ -71,12 +80,31 @@ public class ClockFragment extends Fragment {
             calendar.set(Calendar.HOUR_OF_DAY,i);
             calendar.set(Calendar.MINUTE, i);
             Alarm alarm = new Alarm();
+            alarm.setId(i);
+            alarm.setAlarmSet(false);
             alarm.setAlarmTime(calendar.getTime());
             mAlarmList.add(alarm);
         }
+        new LoadAlarms().execute();
 
+        mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper
+                .SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                // delete alarm
+            }
+        });
+        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
         mAdapter = new AlarmAdapter(mAlarmList);
         mRecyclerView.setAdapter(mAdapter);
+        Log.i(TAG, "onViewCreated: ");
 
     }
 
@@ -101,8 +129,12 @@ public class ClockFragment extends Fragment {
             }
 
             public void bind(Alarm alarm){
-                mTextView.setText(alarm.getAlarmTime().toString());
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+
+                mTextView.setText(simpleDateFormat.format(alarm.getAlarmTime()));
             }
+
+
 
             @Override
             public void onClick(View v) {
@@ -119,7 +151,9 @@ public class ClockFragment extends Fragment {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new AlarmAdapter.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.alarm_row, parent, false));
+            return new AlarmAdapter.ViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.alarm_row, parent, false));
         }
 
         @Override
@@ -130,6 +164,21 @@ public class ClockFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mAlarms.size();
+        }
+    }
+
+    public class LoadAlarms extends AsyncTask<Void,Void,Void>{
+
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            mAdapter.notifyDataSetChanged();
         }
     }
 

@@ -1,10 +1,29 @@
-package jf.clock;
+package jf.clock.data;
+
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 import java.util.Date;
 
+@Entity
 public class Alarm {
+    @PrimaryKey
+    private int mId;
+
+    @ColumnInfo(name = "alarm_time")
     private Date mAlarmTime;
+
+    @ColumnInfo(name = "is_alarm_set")
     private boolean mAlarmSet;
+
+    public int getId() {
+        return mId;
+    }
+
+    public void setId(int id) {
+        mId = id;
+    }
 
     public Date getAlarmTime() {
         return mAlarmTime;
