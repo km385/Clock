@@ -32,6 +32,10 @@ import jf.clock.data.AppDatabase;
 public class ClockFragment extends Fragment {
     private static final String TAG = "ClockFragment";
 
+    public static final int INSERT = 0;
+    public static final int UPDATE = 1;
+    public static final int DELETE = 2;
+
     private RecyclerView mRecyclerView;
     private ItemTouchHelper mItemTouchHelper;
     private AlarmAdapter mAdapter;
@@ -63,6 +67,7 @@ public class ClockFragment extends Fragment {
                         int pos = result.getInt("position");
                         mAlarmList.get(pos).setAlarmTime((Date) result.getSerializable("date"));
                         mAdapter.notifyItemChanged(pos);
+                        new LoadAlarms(UPDATE).execute(mAlarmList.get(pos));
                     }
                 });
 
@@ -75,17 +80,9 @@ public class ClockFragment extends Fragment {
         mRecyclerView = view.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));
         mAlarmList = new ArrayList<>();
-        for (int i = 0; i < 5;i++){
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.HOUR_OF_DAY,i);
-            calendar.set(Calendar.MINUTE, i);
-            Alarm alarm = new Alarm();
-            alarm.setId(i);
-            alarm.setAlarmSet(false);
-            alarm.setAlarmTime(calendar.getTime());
-            mAlarmList.add(alarm);
-        }
-        new LoadAlarms().execute();
+
+        // setup adapter
+        new LoadAlarms(-1).execute();
 
         mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper
                 .SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -102,9 +99,15 @@ public class ClockFragment extends Fragment {
             }
         });
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
-        mAdapter = new AlarmAdapter(mAlarmList);
-        mRecyclerView.setAdapter(mAdapter);
-        Log.i(TAG, "onViewCreated: ");
+
+
+    }
+
+    public void setupAdapter(){
+        if (isAdded()){
+            mAdapter = new AlarmAdapter(mAlarmList);
+            mRecyclerView.setAdapter(mAdapter);
+        }
 
     }
 
@@ -167,18 +170,39 @@ public class ClockFragment extends Fragment {
         }
     }
 
-    public class LoadAlarms extends AsyncTask<Void,Void,Void>{
+    public class LoadAlarms extends AsyncTask<Alarm,Void,Void>{
+        private int mAction;
 
+        public LoadAlarms(Integer value) {
+            mAction = value;
+        }
 
         @Override
-        protected Void doInBackground(Void... voids) {
-
+        protected Void doInBackground(Alarm... alarms) {
+            switch (mAction){
+                case INSERT:
+                    mAlarmDao.insertAlarm(alarms);
+                    break;
+                case UPDATE:
+                    Log.i(TAG, "UPDATE");
+                    mAlarmDao.updateAlarm(alarms);
+                    break;
+                case DELETE:
+                    mAlarmDao.deleteAlarm(alarms);
+                    break;
+                default:
+                    mAlarmList = mAlarmDao.getAlarms();
+                    break;
+            }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void unused) {
-            mAdapter.notifyDataSetChanged();
+            if (mAction == -1)
+                setupAdapter();
+            else
+                mAdapter.notifyDataSetChanged();
         }
     }
 
