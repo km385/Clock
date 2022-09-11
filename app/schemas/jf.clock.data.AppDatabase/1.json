@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "18c8d7230bf5570d4d51f7f3f3b34b5d",
+    "identityHash": "e6bd7170394d81ef74c7611a03666c64",
     "entities": [
       {
         "tableName": "Alarm",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mId` INTEGER NOT NULL, `alarm_time` INTEGER, `is_alarm_set` INTEGER NOT NULL, PRIMARY KEY(`mId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `alarm_time` INTEGER, `is_alarm_set` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "mId",
@@ -31,7 +31,7 @@
           "columnNames": [
             "mId"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [],
         "foreignKeys": []
@@ -40,7 +40,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '18c8d7230bf5570d4d51f7f3f3b34b5d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e6bd7170394d81ef74c7611a03666c64')"
     ]
   }
 }

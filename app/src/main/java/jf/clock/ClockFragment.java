@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,6 +41,7 @@ public class ClockFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private ItemTouchHelper mItemTouchHelper;
     private AlarmAdapter mAdapter;
+    private FloatingActionButton mFab;
     private List<Alarm> mAlarmList;
 
     private AppDatabase mDb;
@@ -50,7 +53,6 @@ public class ClockFragment extends Fragment {
                 AppDatabase.class, "Sample.db")
                 .build();
         mAlarmDao = mDb.mAlarmDao();
-        // new LoadAlarms().execute();
 
         super.onCreate(savedInstanceState);
     }
@@ -65,9 +67,19 @@ public class ClockFragment extends Fragment {
                 this, (requestKey, result) -> {
                     if (requestKey.equals("requestKey")){
                         int pos = result.getInt("position");
-                        mAlarmList.get(pos).setAlarmTime((Date) result.getSerializable("date"));
-                        mAdapter.notifyItemChanged(pos);
-                        new LoadAlarms(UPDATE).execute(mAlarmList.get(pos));
+                        if (mAlarmList.size() == pos){
+                            Alarm alarm = new Alarm();
+                            alarm.setAlarmTime((Date) result.getSerializable("date"));
+                            alarm.setAlarmSet(true);
+                            mAlarmList.add(alarm);
+                            mAdapter.setAlarms(mAlarmList);
+                            mAdapter.notifyItemInserted(pos);
+                            new LoadAlarms(INSERT, pos).execute(alarm);
+                        } else {
+                            mAlarmList.get(pos).setAlarmTime((Date) result.getSerializable("date"));
+                            mAdapter.notifyItemChanged(pos);
+                            new LoadAlarms(UPDATE).execute(mAlarmList.get(pos));
+                        }
                     }
                 });
 
@@ -76,6 +88,18 @@ public class ClockFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        mFab = view.findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Date date = Calendar.getInstance().getTime();
+
+                FragmentManager fm = getChildFragmentManager();
+                TimePicker dialog = TimePicker.newInstance(date, mAlarmList.size());
+                dialog.show(fm, "dialog");
+            }
+        });
 
         mRecyclerView = view.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));
@@ -95,7 +119,8 @@ public class ClockFragment extends Fragment {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                // delete alarm
+                new LoadAlarms(DELETE, viewHolder.getAdapterPosition())
+                        .execute(mAlarmList.get(viewHolder.getAdapterPosition()));
             }
         });
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
@@ -135,6 +160,7 @@ public class ClockFragment extends Fragment {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
 
                 mTextView.setText(simpleDateFormat.format(alarm.getAlarmTime()));
+                mSwitch.setChecked(alarm.isAlarmSet());
             }
 
 
@@ -168,13 +194,23 @@ public class ClockFragment extends Fragment {
         public int getItemCount() {
             return mAlarms.size();
         }
+
+        public void setAlarms(List<Alarm> alarms){
+            mAlarms = alarms;
+        }
     }
 
     public class LoadAlarms extends AsyncTask<Alarm,Void,Void>{
         private int mAction;
+        private int mPos;
 
         public LoadAlarms(Integer value) {
             mAction = value;
+        }
+
+        public LoadAlarms(Integer value, Integer pos){
+            mAction = value;
+            mPos = pos;
         }
 
         @Override
@@ -189,6 +225,7 @@ public class ClockFragment extends Fragment {
                     break;
                 case DELETE:
                     mAlarmDao.deleteAlarm(alarms);
+                    mAlarmList = mAlarmDao.getAlarms();
                     break;
                 default:
                     mAlarmList = mAlarmDao.getAlarms();
@@ -199,10 +236,20 @@ public class ClockFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void unused) {
-            if (mAction == -1)
-                setupAdapter();
-            else
-                mAdapter.notifyDataSetChanged();
+            switch (mAction){
+                case INSERT:
+                    break;
+                case DELETE:
+                    mAdapter.setAlarms(mAlarmList);
+                    mAdapter.notifyItemRemoved(mPos);
+                    break;
+                case UPDATE:
+                    break;
+                default:
+                    setupAdapter();
+                    break;
+            }
+
         }
     }
 

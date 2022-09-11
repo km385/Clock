@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Entity
 public class Alarm {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     private int mId;
 
     @ColumnInfo(name = "alarm_time")
