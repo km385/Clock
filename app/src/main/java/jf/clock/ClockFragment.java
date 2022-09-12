@@ -36,7 +36,8 @@ public class ClockFragment extends Fragment {
 
     public static final int INSERT = 0;
     public static final int UPDATE = 1;
-    public static final int DELETE = 2;
+    public static final int UPDATE_FIELD = 2;
+    public static final int DELETE = 3;
 
     private RecyclerView mRecyclerView;
     private ItemTouchHelper mItemTouchHelper;
@@ -68,15 +69,18 @@ public class ClockFragment extends Fragment {
                     if (requestKey.equals("requestKey")){
                         int pos = result.getInt("position");
                         if (mAlarmList.size() == pos){
+                            // add new alarm
                             Alarm alarm = new Alarm();
                             alarm.setAlarmTime((Date) result.getSerializable("date"));
                             alarm.setAlarmSet(true);
                             mAlarmList.add(alarm);
-                            mAdapter.setAlarms(mAlarmList);
+                            //mAdapter.setAlarms(mAlarmList);
                             mAdapter.notifyItemInserted(pos);
                             new LoadAlarms(INSERT, pos).execute(alarm);
                         } else {
+                            // update current alarm
                             mAlarmList.get(pos).setAlarmTime((Date) result.getSerializable("date"));
+                            //mAdapter.setAlarms(mAlarmList);
                             mAdapter.notifyItemChanged(pos);
                             new LoadAlarms(UPDATE).execute(mAlarmList.get(pos));
                         }
@@ -121,6 +125,7 @@ public class ClockFragment extends Fragment {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 new LoadAlarms(DELETE, viewHolder.getAdapterPosition())
                         .execute(mAlarmList.get(viewHolder.getAdapterPosition()));
+                mAlarmList.remove(viewHolder.getAdapterPosition());
             }
         });
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
@@ -129,6 +134,7 @@ public class ClockFragment extends Fragment {
     }
 
     public void setupAdapter(){
+        Log.i(TAG, "setupAdapter");
         if (isAdded()){
             mAdapter = new AlarmAdapter(mAlarmList);
             mRecyclerView.setAdapter(mAdapter);
@@ -152,6 +158,18 @@ public class ClockFragment extends Fragment {
                 itemView.setOnClickListener(this);
                 mTextView = itemView.findViewById(R.id.alarm_id);
                 mSwitch = itemView.findViewById(R.id.alarm_switch);
+                mSwitch.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mAlarmList.get(getAdapterPosition()).setAlarmSet(mSwitch.isChecked());
+                        new LoadAlarms(
+                                UPDATE_FIELD,
+                                mAlarms.get(getAdapterPosition()).getId(),
+                                getAdapterPosition(),
+                                mSwitch.isChecked()).execute();
+                        Log.i(TAG, "onClick: " + mAlarms.get(getAdapterPosition()).getId());
+                    }
+                });
 
                 // do things with your elements in each row
             }
@@ -160,6 +178,7 @@ public class ClockFragment extends Fragment {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
 
                 mTextView.setText(simpleDateFormat.format(alarm.getAlarmTime()));
+                //mTextView.setText(alarm.getId());
                 mSwitch.setChecked(alarm.isAlarmSet());
             }
 
@@ -167,12 +186,13 @@ public class ClockFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                // TODO date is saved as String, change to Date if possible
+                // TODO changing switch right after creating an alarm does not work
                 Date date = mAlarms.get(getAdapterPosition()).getAlarmTime();
 
                 FragmentManager fm = getChildFragmentManager();
                 TimePicker dialog = TimePicker.newInstance(date, getAdapterPosition());
                 dialog.show(fm, "dialog");
+                Log.i(TAG, "onClick: " + mAlarms.get(getAdapterPosition()).getId());
 
             }
         }
@@ -203,6 +223,8 @@ public class ClockFragment extends Fragment {
     public class LoadAlarms extends AsyncTask<Alarm,Void,Void>{
         private int mAction;
         private int mPos;
+        private int mId;
+        private boolean mValue;
 
         public LoadAlarms(Integer value) {
             mAction = value;
@@ -211,6 +233,13 @@ public class ClockFragment extends Fragment {
         public LoadAlarms(Integer value, Integer pos){
             mAction = value;
             mPos = pos;
+        }
+
+        public LoadAlarms(Integer action, Integer id, Integer pos, boolean value){
+            mAction = action;
+            mPos = pos;
+            mValue = value;
+            mId = id;
         }
 
         @Override
@@ -223,9 +252,13 @@ public class ClockFragment extends Fragment {
                     Log.i(TAG, "UPDATE");
                     mAlarmDao.updateAlarm(alarms);
                     break;
+                case UPDATE_FIELD:
+                    Log.i(TAG, "UPDATE FIELD");
+                    mAlarmDao.updateField(mId, mValue);
+                    break;
                 case DELETE:
                     mAlarmDao.deleteAlarm(alarms);
-                    mAlarmList = mAlarmDao.getAlarms();
+                    //mAlarmList = mAlarmDao.getAlarms();
                     break;
                 default:
                     mAlarmList = mAlarmDao.getAlarms();
@@ -240,10 +273,13 @@ public class ClockFragment extends Fragment {
                 case INSERT:
                     break;
                 case DELETE:
-                    mAdapter.setAlarms(mAlarmList);
+                    //mAdapter.setAlarms(mAlarmList);
                     mAdapter.notifyItemRemoved(mPos);
                     break;
                 case UPDATE:
+                    break;
+                case UPDATE_FIELD:
+                    //mAdapter.notifyItemChanged(mPos);
                     break;
                 default:
                     setupAdapter();

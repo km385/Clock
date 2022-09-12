@@ -22,4 +22,8 @@ public interface AlarmDao {
 
     @Query("SELECT * FROM alarm")
     public List<Alarm> getAlarms();
+
+    @Query("UPDATE alarm SET is_alarm_set = :value WHERE mId = :id")
+    public void updateField(int id, boolean value);
+
 }
