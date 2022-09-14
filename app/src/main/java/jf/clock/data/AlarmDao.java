@@ -12,18 +12,24 @@ import java.util.List;
 @Dao
 public interface AlarmDao {
     @Insert
-    public void insertAlarm(Alarm... alarms);
+    public void insertAlarm(Alarm alarm);
 
     @Update
-    public void updateAlarm(Alarm... alarms);
+    public void updateAlarm(Alarm alarm);
 
     @Delete
-    public void deleteAlarm(Alarm... alarms);
+    public void deleteAlarm(Alarm alarm);
 
     @Query("SELECT * FROM alarm")
     public List<Alarm> getAlarms();
 
+    @Query("SELECT * from alarm WHERE mId = :id")
+    public Alarm getAlarmById(int id);
+
     @Query("UPDATE alarm SET is_alarm_set = :value WHERE mId = :id")
     public void updateField(int id, boolean value);
+
+    @Query("DELETE FROM alarm WHERE mId = :id")
+    public void deleteAlarm(int id);
 
 }

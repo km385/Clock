@@ -62,9 +62,14 @@ public class TimePicker extends AppCompatDialogFragment {
                         calendar1.set(Calendar.MINUTE, mTimePicker.getMinute());
                         Bundle bundle = new Bundle();
                         bundle.putSerializable("date", calendar1.getTime());
-                        bundle.putInt("position", position);
 
-                        getParentFragmentManager().setFragmentResult("requestKey", bundle);
+                        if (position == -1){
+                            getParentFragmentManager().setFragmentResult("addAlarm", bundle);
+                        } else {
+                            bundle.putInt("position", position);
+                            getParentFragmentManager().setFragmentResult("updateAlarm", bundle);
+                        }
+
 
                     }
                 })
