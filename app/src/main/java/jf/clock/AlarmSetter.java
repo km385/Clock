@@ -29,4 +29,14 @@ public class AlarmSetter {
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(),
                 pendingIntent);
     }
+
+    public void cancelAlarm(){
+        AlarmManager alarmManager = (AlarmManager) mContext
+                .getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(mContext, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 1,
+                intent, PendingIntent.FLAG_NO_CREATE);
+        if (alarmManager != null && pendingIntent != null)
+            alarmManager.cancel(pendingIntent);
+    }
 }

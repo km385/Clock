@@ -11,14 +11,16 @@ import java.util.concurrent.Executors;
 import jf.clock.data.Alarm;
 import jf.clock.data.Connections;
 
-public class UpdateAlarmAsync {
-    private static final String TAG = "UpdateAlarmAsync";
+public class UpdateAlarmStatusAsync {
+    private static final String TAG = "UpdateAlarmStatusAsync";
     private DatabaseCallback<List<Alarm>> mCallback;
-    private Alarm mAlarm;
+    private int mId;
+    private boolean mStatus;
     private Context mContext;
 
-    public UpdateAlarmAsync(Alarm alarm, Context context, DatabaseCallback<List<Alarm>> callback){
-        mAlarm = alarm;
+    public UpdateAlarmStatusAsync(int id, boolean status, Context context, DatabaseCallback<List<Alarm>> callback){
+        mId = id;
+        mStatus = status;
         mContext = context;
         mCallback = callback;
 
@@ -30,7 +32,7 @@ public class UpdateAlarmAsync {
         Handler handler = new Handler(Looper.getMainLooper());
 
         executor.execute(() -> {
-            Connections.getInstance(mContext).getDatabase().mAlarmDao().updateAlarm(mAlarm);
+            Connections.getInstance(mContext).getDatabase().mAlarmDao().updateField(mId, mStatus);
             List<Alarm> list = Connections.getInstance(mContext).getDatabase().mAlarmDao().getAlarms();
             handler.post(() -> {
                 if (mCallback != null) {
