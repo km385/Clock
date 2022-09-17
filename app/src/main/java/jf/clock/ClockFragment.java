@@ -1,6 +1,5 @@
 package jf.clock;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,22 +7,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentResultListener;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -64,9 +59,8 @@ public class ClockFragment extends Fragment {
                     new DatabaseCallback<Alarm>() {
                         @Override
                         public void handleResponse(Alarm response) {
-                            Alarm alarm = response;
-                            alarm.setAlarmTime(date);
-                            new UpdateAlarmAsync(alarm, requireContext(),
+                            response.setAlarmTime(date);
+                            new UpdateAlarmAsync(response, requireContext(),
                                     new DatabaseCallback<List<Alarm>>() {
                                         @Override
                                         public void handleResponse(List<Alarm> response) {
@@ -119,15 +113,12 @@ public class ClockFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         mFab = view.findViewById(R.id.fab);
-        mFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Date date = Calendar.getInstance().getTime();
+        mFab.setOnClickListener(v -> {
+            Date date = Calendar.getInstance().getTime();
 
-                FragmentManager fm = getChildFragmentManager();
-                TimePicker dialog = TimePicker.newInstance(date, -1);
-                dialog.show(fm, "dialog");
-            }
+            FragmentManager fm = getChildFragmentManager();
+            TimePicker dialog = TimePicker.newInstance(date, -1);
+            dialog.show(fm, "dialog");
         });
 
         mRecyclerView = view.findViewById(R.id.recycler_view);
@@ -162,9 +153,6 @@ public class ClockFragment extends Fragment {
 
                             }
                         });
-//                new LoadAlarms(DELETE, viewHolder.getAdapterPosition())
-//                        .execute(mAlarmList.get(viewHolder.getAdapterPosition()));
-//                mAlarmList.remove(viewHolder.getAdapterPosition());
             }
         });
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
@@ -206,42 +194,47 @@ public class ClockFragment extends Fragment {
                 itemView.setOnClickListener(this);
                 mTextView = itemView.findViewById(R.id.alarm_id);
                 mSwitch = itemView.findViewById(R.id.alarm_switch);
-                mSwitch.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+                mSwitch.setOnClickListener(v -> {
 
-                        new FindAlarmByIdAsync(
-                                Math.toIntExact(AlarmAdapter.this.getItemId(getAdapterPosition())),
-                                requireContext(),
-                                new DatabaseCallback<Alarm>() {
-                                    @Override
-                                    public void handleResponse(Alarm response) {
-                                        response.setAlarmSet(mSwitch.isChecked());
-                                        new UpdateAlarmAsync(
-                                                response, requireContext(),
-                                                new DatabaseCallback<List<Alarm>>() {
-                                                    @Override
-                                                    public void handleResponse(List<Alarm> response) {
-                                                        mAdapter.setAlarms(response);
-                                                        mAdapter.notifyItemChanged(getAdapterPosition());
-                                                    }
+                    new FindAlarmByIdAsync(
+                            Math.toIntExact(AlarmAdapter.this.getItemId(getAdapterPosition())),
+                            requireContext(),
+                            new DatabaseCallback<Alarm>() {
 
-                                                    @Override
-                                                    public void handleError(Exception e) {
+                                @Override
+                                public void handleResponse(Alarm response) {
+                                    response.setAlarmSet(mSwitch.isChecked());
+                                    if (mSwitch.isChecked()){
+                                        Calendar cal = Calendar.getInstance();
+                                        cal.setTime(response.getAlarmTime());
+                                        new AlarmSetter(requireContext()).setAlarm(cal);
+                                    }
+                                    new UpdateAlarmAsync(
+                                            response,
+                                            requireContext(),
+                                            new DatabaseCallback<List<Alarm>>() {
 
-                                                    }
+                                                @Override
+                                                public void handleResponse(List<Alarm> response) {
+                                                    mAdapter.setAlarms(response);
+                                                    mAdapter.notifyItemChanged(getAdapterPosition());
                                                 }
-                                        );
-                                    }
 
-                                    @Override
-                                    public void handleError(Exception e) {
+                                                @Override
+                                                public void handleError(Exception e) {
 
-                                    }
-                                });
+                                                }
+                                            }
+                                    );
+                                }
 
-                        Log.i(TAG, "id: " + mAlarms.get(getAdapterPosition()).getId());
-                    }
+                                @Override
+                                public void handleError(Exception e) {
+
+                                }
+                            });
+
+                    Log.i(TAG, "id: " + mAlarms.get(getAdapterPosition()).getId());
                 });
 
                 // do things with your elements in each row

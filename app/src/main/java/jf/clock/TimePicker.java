@@ -60,6 +60,7 @@ public class TimePicker extends AppCompatDialogFragment {
                         Calendar calendar1 = Calendar.getInstance();
                         calendar1.set(Calendar.HOUR_OF_DAY, mTimePicker.getHour());
                         calendar1.set(Calendar.MINUTE, mTimePicker.getMinute());
+                        calendar1.set(Calendar.SECOND, 0);
                         Bundle bundle = new Bundle();
                         bundle.putSerializable("date", calendar1.getTime());
 
