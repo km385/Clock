@@ -94,7 +94,7 @@ public class ClockFragment extends Fragment {
 
                     Alarm alarm = new Alarm();
                     alarm.setAlarmTime((Date) result.getSerializable("date"));
-                    alarm.setAlarmSet(true);
+                    alarm.setAlarmSet(false);
 
                     new InsertAlarmAsync(alarm, requireContext(), new DatabaseCallback<List<Alarm>>() {
                         @Override
@@ -282,7 +282,7 @@ public class ClockFragment extends Fragment {
             public void handleResponse(Alarm response) {
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(response.getAlarmTime());
-                mAlarmSetter.setAlarm(cal);
+                mAlarmSetter.setAlarm(cal, id);
             }
 
             @Override
@@ -298,7 +298,7 @@ public class ClockFragment extends Fragment {
             public void handleResponse(Alarm response) {
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(response.getAlarmTime());
-                mAlarmSetter.cancelAlarm();
+                mAlarmSetter.cancelAlarm(id);
             }
 
             @Override

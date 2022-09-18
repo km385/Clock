@@ -5,12 +5,12 @@
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-<!--    <uses-permission android:name="android.permission.WAKE_LOCK" />-->
-<!--    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />-->
-<!--    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />-->
-<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />-->
-<!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
-<!--    <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />
 
     <application
         android:allowBackup="true"
@@ -33,6 +33,7 @@
         </activity>
         <activity
             android:name=".AlarmActivity"
+            android:parentActivityName=".MainActivity"
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
             android:turnScreenOn="true"

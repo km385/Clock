@@ -18,23 +18,23 @@ public class AlarmSetter {
         mContext = context;
     }
 
-    public void setAlarm(Calendar c){
+    public void setAlarm(Calendar c, int id){
         AlarmManager alarmManager = (AlarmManager) mContext
                 .getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(mContext, AlarmReceiver.class);
         intent.putExtra("date", c);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 1,
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, id,
                 intent, 0);
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(),
                 pendingIntent);
     }
 
-    public void cancelAlarm(){
+    public void cancelAlarm(int id){
         AlarmManager alarmManager = (AlarmManager) mContext
                 .getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(mContext, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 1,
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, id,
                 intent, PendingIntent.FLAG_NO_CREATE);
         if (alarmManager != null && pendingIntent != null)
             alarmManager.cancel(pendingIntent);
