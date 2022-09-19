@@ -23,8 +23,10 @@ public class AlarmSetter {
                 .getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(mContext, AlarmReceiver.class);
         intent.putExtra("date", c);
+        intent.putExtra("id", id);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, id,
                 intent, 0);
+
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(),
                 pendingIntent);
