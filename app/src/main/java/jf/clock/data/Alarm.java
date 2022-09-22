@@ -1,23 +1,33 @@
 package jf.clock.data;
 
+import android.content.Context;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.util.Date;
+import java.util.List;
+
+import jf.clock.repositories.DatabaseCallback;
+import jf.clock.repositories.InsertAlarmAsync;
+import jf.clock.repositories.UpdateAlarmAsync;
 
 @Entity
 public class Alarm {
     @PrimaryKey(autoGenerate = true)
-    private int mId;
+    private long mId;
 
-    @ColumnInfo(name = "alarm_time")
-    private Date mAlarmTime;
+    @ColumnInfo(name = "hour")
+    private int mHour;
+
+    @ColumnInfo(name = "minutes")
+    private int mMinutes;
 
     @ColumnInfo(name = "is_alarm_set")
     private boolean mAlarmSet;
 
-    public int getId() {
+    public long getId() {
         return mId;
     }
 
@@ -25,12 +35,20 @@ public class Alarm {
         mId = id;
     }
 
-    public Date getAlarmTime() {
-        return mAlarmTime;
+    public int getHour() {
+        return mHour;
     }
 
-    public void setAlarmTime(Date alarmTime) {
-        mAlarmTime = alarmTime;
+    public void setHour(int hour) {
+        mHour = hour;
+    }
+
+    public int getMinutes() {
+        return mMinutes;
+    }
+
+    public void setMinutes(int minutes) {
+        mMinutes = minutes;
     }
 
     public boolean isAlarmSet() {

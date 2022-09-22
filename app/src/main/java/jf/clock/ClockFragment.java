@@ -57,13 +57,15 @@ public class ClockFragment extends Fragment {
         getChildFragmentManager().setFragmentResultListener("updateAlarm", this,
                 (requestKey, result) -> {
             int pos = result.getInt("position");
-            Date date = (Date) result.getSerializable("date");
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime((Date) result.getSerializable("date"));
             // TODO change if id changes to long
             new FindAlarmByIdAsync(Math.toIntExact(mAdapter.getItemId(pos)), requireContext(),
                     new DatabaseCallback<Alarm>() {
                         @Override
                         public void handleResponse(Alarm response) {
-                            response.setAlarmTime(date);
+                            response.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+                            response.setMinutes(calendar.get(Calendar.MINUTE));
                             new UpdateAlarmTimeAsync(response, requireContext(),
                                     new DatabaseCallback<List<Alarm>>() {
                                         @Override
@@ -91,9 +93,11 @@ public class ClockFragment extends Fragment {
         getChildFragmentManager().setFragmentResultListener("addAlarm", this,
                 (requestKey, result) -> {
                     // TODO find a good way to set a id manually
-
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime((Date) result.getSerializable("date"));
                     Alarm alarm = new Alarm();
-                    alarm.setAlarmTime((Date) result.getSerializable("date"));
+                    alarm.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+                    alarm.setMinutes(calendar.get(Calendar.MINUTE));
                     alarm.setAlarmSet(false);
 
                     new InsertAlarmAsync(alarm, requireContext(), new DatabaseCallback<List<Alarm>>() {
@@ -199,7 +203,7 @@ public class ClockFragment extends Fragment {
                 mTextView = itemView.findViewById(R.id.alarm_id);
                 mSwitch = itemView.findViewById(R.id.alarm_switch);
                 mSwitch.setOnClickListener(v -> {
-                    int alarmId = Math.toIntExact(AlarmAdapter.this.getItemId(getAdapterPosition()));
+                    long alarmId = AlarmAdapter.this.getItemId(getAdapterPosition());
                     new UpdateAlarmStatusAsync(alarmId, mSwitch.isChecked(), requireContext(),
                             new DatabaseCallback<List<Alarm>>() {
                                 @Override
@@ -226,9 +230,8 @@ public class ClockFragment extends Fragment {
             }
 
             public void bind(Alarm alarm){
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
 
-                mTextView.setText(simpleDateFormat.format(alarm.getAlarmTime()));
+                mTextView.setText(String.format("%02d:", alarm.getHour()) + String.format("%02d", alarm.getMinutes()));
                 //mTextView.setText(alarm.getId());
                 mSwitch.setChecked(alarm.isAlarmSet());
             }
@@ -238,10 +241,12 @@ public class ClockFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // TODO changing switch right after creating an alarm does not work
-                Date date = mAlarms.get(getAdapterPosition()).getAlarmTime();
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, mAlarms.get(getAdapterPosition()).getHour());
+                calendar.set(Calendar.MINUTE, mAlarms.get(getAdapterPosition()).getMinutes());
 
                 FragmentManager fm = getChildFragmentManager();
-                TimePicker dialog = TimePicker.newInstance(date, getAdapterPosition());
+                TimePicker dialog = TimePicker.newInstance(calendar.getTime(), getAdapterPosition());
                 dialog.show(fm, "dialog");
                 Log.i(TAG, "alarms' id: " + mAlarms.get(getAdapterPosition()).getId());
 
@@ -276,13 +281,11 @@ public class ClockFragment extends Fragment {
         }
     }
 
-    private void setAlarm(int id) {
+    private void setAlarm(long id) {
         new FindAlarmByIdAsync(id, requireContext(), new DatabaseCallback<Alarm>() {
             @Override
             public void handleResponse(Alarm response) {
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(response.getAlarmTime());
-                mAlarmSetter.setAlarm(cal, id);
+                mAlarmSetter.setAlarm(response);
             }
 
             @Override
@@ -292,13 +295,12 @@ public class ClockFragment extends Fragment {
         });
     }
 
-    private void cancelAlarm(int id) {
+    private void cancelAlarm(long id) {
         new FindAlarmByIdAsync(id, requireContext(), new DatabaseCallback<Alarm>() {
             @Override
             public void handleResponse(Alarm response) {
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(response.getAlarmTime());
-                mAlarmSetter.cancelAlarm(id);
+
+                mAlarmSetter.cancelAlarm(response);
             }
 
             @Override

@@ -9,6 +9,8 @@ import android.util.Log;
 
 import java.util.Calendar;
 
+import jf.clock.data.Alarm;
+
 public class AlarmSetter {
     private static final String TAG = "AlarmSetter";
 
@@ -18,45 +20,44 @@ public class AlarmSetter {
         mContext = context;
     }
 
-    public void setAlarm(Calendar c, int id){
+    public void setAlarm(Alarm alarm){
         AlarmManager alarmManager = (AlarmManager) mContext
                 .getSystemService(Context.ALARM_SERVICE);
-
-        c = checkDate(c);
-
+        Calendar calendar = getNextAlarmTime(alarm.getHour(), alarm.getMinutes());
+        Log.i(TAG, "alarm date" + calendar.getTime());
         Intent intent = new Intent(mContext, AlarmReceiver.class);
-        intent.putExtra("date", c);
-        intent.putExtra("id", id);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, id,
+        intent.putExtra("date", calendar);
+        intent.putExtra("id", alarm.getId());
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, Math.toIntExact(alarm.getId()),
                 intent, 0);
 
 
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(),
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 pendingIntent);
     }
 
-    public void cancelAlarm(int id){
+    public void cancelAlarm(Alarm alarm){
         AlarmManager alarmManager = (AlarmManager) mContext
                 .getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(mContext, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, id,
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, Math.toIntExact(alarm.getId()),
                 intent, PendingIntent.FLAG_NO_CREATE);
         if (alarmManager != null && pendingIntent != null)
             alarmManager.cancel(pendingIntent);
     }
 
-    private Calendar checkDate(Calendar alarmTime){
+    private Calendar getNextAlarmTime(int hour, int minutes){
+        Calendar nextTime = Calendar.getInstance();
         Calendar currentTime = Calendar.getInstance();
-        if (alarmTime.getTimeInMillis() < currentTime.getTimeInMillis()){
-            int hour = alarmTime.get(Calendar.HOUR_OF_DAY);
-            int minute = alarmTime.get(Calendar.MINUTE);
-            alarmTime = currentTime;
-            alarmTime.add(Calendar.DAY_OF_MONTH, 1);
-            alarmTime.set(Calendar.HOUR_OF_DAY, hour);
-            alarmTime.set(Calendar.MINUTE, minute);
+        nextTime.set(Calendar.HOUR_OF_DAY, hour);
+        nextTime.set(Calendar.MINUTE, minutes);
+        nextTime.set(Calendar.SECOND, 0);
+        nextTime.set(Calendar.MILLISECOND, 0);
 
-            return alarmTime;
+        if (nextTime.getTimeInMillis() <= currentTime.getTimeInMillis()){
+            nextTime.add(Calendar.DAY_OF_YEAR, 1);
         }
-        return alarmTime;
+
+        return nextTime;
     }
 }

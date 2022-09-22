@@ -24,12 +24,12 @@ public interface AlarmDao {
     public List<Alarm> getAlarms();
 
     @Query("SELECT * from alarm WHERE mId = :id")
-    public Alarm getAlarmById(int id);
+    public Alarm getAlarmById(long id);
 
     @Query("UPDATE alarm SET is_alarm_set = :value WHERE mId = :id")
-    public void updateField(int id, boolean value);
+    public void updateField(long id, boolean value);
 
     @Query("DELETE FROM alarm WHERE mId = :id")
-    public void deleteAlarm(int id);
+    public void deleteAlarm(long id);
 
 }

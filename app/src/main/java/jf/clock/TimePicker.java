@@ -52,7 +52,6 @@ public class TimePicker extends AppCompatDialogFragment {
 
         return new AlertDialog.Builder(requireContext())
                 .setView(v)
-                .setTitle("yo")
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

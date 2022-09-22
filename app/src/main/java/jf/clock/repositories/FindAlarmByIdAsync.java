@@ -14,11 +14,11 @@ import jf.clock.data.Connections;
 public class FindAlarmByIdAsync {
     private static final String TAG = "FindAlarmByIdAsync";
     private DatabaseCallback<Alarm> mCallback;
-    private int mId;
+    private long mId;
     private Context mContext;
     private Exception mException;
 
-    public FindAlarmByIdAsync(int id, Context context, DatabaseCallback<Alarm> callback){
+    public FindAlarmByIdAsync(long id, Context context, DatabaseCallback<Alarm> callback){
         mId = id;
         mContext = context;
         mCallback = callback;
