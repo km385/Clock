@@ -1,5 +1,8 @@
 package jf.clock;
 
+import static android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -15,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
@@ -55,7 +59,6 @@ public class AlarmActivity extends AppCompatActivity {
             }
         });
 
-
         setupSound();
 
 
@@ -93,5 +96,17 @@ public class AlarmActivity extends AppCompatActivity {
         if (mMediaPlayer != null) mMediaPlayer.stop();
         super.onDestroy();
 
+    }
+
+//    private void hideNavBar(){
+//        // not working
+//        getWindow().getDecorView().setSystemUiVisibility(SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+//                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+//                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+//    }
+
+    @Override
+    public void onBackPressed() {
+        // don't allow back button to dismiss
     }
 }

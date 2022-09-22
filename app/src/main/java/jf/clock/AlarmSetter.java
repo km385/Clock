@@ -10,7 +10,7 @@ import android.util.Log;
 import java.util.Calendar;
 
 public class AlarmSetter {
-    private static final String TAG = "AlarmManager";
+    private static final String TAG = "AlarmSetter";
 
     private Context mContext;
 
@@ -21,6 +21,9 @@ public class AlarmSetter {
     public void setAlarm(Calendar c, int id){
         AlarmManager alarmManager = (AlarmManager) mContext
                 .getSystemService(Context.ALARM_SERVICE);
+
+        c = checkDate(c);
+
         Intent intent = new Intent(mContext, AlarmReceiver.class);
         intent.putExtra("date", c);
         intent.putExtra("id", id);
@@ -40,5 +43,20 @@ public class AlarmSetter {
                 intent, PendingIntent.FLAG_NO_CREATE);
         if (alarmManager != null && pendingIntent != null)
             alarmManager.cancel(pendingIntent);
+    }
+
+    private Calendar checkDate(Calendar alarmTime){
+        Calendar currentTime = Calendar.getInstance();
+        if (alarmTime.getTimeInMillis() < currentTime.getTimeInMillis()){
+            int hour = alarmTime.get(Calendar.HOUR_OF_DAY);
+            int minute = alarmTime.get(Calendar.MINUTE);
+            alarmTime = currentTime;
+            alarmTime.add(Calendar.DAY_OF_MONTH, 1);
+            alarmTime.set(Calendar.HOUR_OF_DAY, hour);
+            alarmTime.set(Calendar.MINUTE, minute);
+
+            return alarmTime;
+        }
+        return alarmTime;
     }
 }
