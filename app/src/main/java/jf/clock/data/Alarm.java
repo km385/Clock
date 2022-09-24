@@ -31,7 +31,7 @@ public class Alarm {
         return mId;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         mId = id;
     }
 
