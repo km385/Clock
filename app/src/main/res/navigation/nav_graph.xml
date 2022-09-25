@@ -9,6 +9,9 @@
         android:name="jf.clock.ClockFragment"
         android:label="clock_fragment"
         tools:layout="@layout/clock_fragment" >
+        <action
+            android:id="@+id/action_clockFragment_to_alarmDetailsFragment"
+            app:destination="@id/alarmDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/timerFragment"
@@ -28,5 +31,14 @@
         tools:layout="@layout/time_setter" >
 
     </dialog>
+    <fragment
+        android:id="@+id/alarmDetailsFragment"
+        android:name="jf.clock.AlarmDetailsFragment"
+        android:label="alarm_details_fragment"
+        tools:layout="@layout/alarm_details_fragment" >
+        <action
+            android:id="@+id/action_alarmDetailsFragment_to_clockFragment2"
+            app:destination="@id/clockFragment" />
+    </fragment>
 
 </navigation>

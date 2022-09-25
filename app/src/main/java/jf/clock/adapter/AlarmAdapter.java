@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Calendar;
@@ -15,6 +17,7 @@ import java.util.List;
 
 import jf.clock.AlarmSetter;
 import jf.clock.ClockFragment;
+import jf.clock.ClockFragmentDirections;
 import jf.clock.R;
 import jf.clock.data.Alarm;
 import jf.clock.repositories.DatabaseCallback;
@@ -94,7 +97,10 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
             calendar.set(Calendar.HOUR_OF_DAY, mAlarms.get(getAdapterPosition()).getHour());
             calendar.set(Calendar.MINUTE, mAlarms.get(getAdapterPosition()).getMinutes());
 
-            mOnItemChangedListener.handleEvent(calendar, getAdapterPosition());
+            //mOnItemChangedListener.handleEvent(calendar, getAdapterPosition());
+
+            NavDirections action = jf.clock.ClockFragmentDirections.actionClockFragmentToAlarmDetailsFragment();
+            Navigation.findNavController(v).navigate(action);
 
 
         }
