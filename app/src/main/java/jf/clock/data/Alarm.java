@@ -6,6 +6,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import jf.clock.repositories.InsertAlarmAsync;
 import jf.clock.repositories.UpdateAlarmAsync;
 
 @Entity
-public class Alarm {
+public class Alarm implements Serializable {
     @PrimaryKey(autoGenerate = true)
     private long mId;
 
@@ -26,6 +27,17 @@ public class Alarm {
 
     @ColumnInfo(name = "is_alarm_set")
     private boolean mAlarmSet;
+
+    @ColumnInfo(name = "is_vibrate")
+    private boolean mVibrate;
+
+    public boolean isVibrate() {
+        return mVibrate;
+    }
+
+    public void setVibrate(boolean vibrate) {
+        mVibrate = vibrate;
+    }
 
     public long getId() {
         return mId;

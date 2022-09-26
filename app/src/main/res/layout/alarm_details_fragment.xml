@@ -8,70 +8,90 @@
     tools:context=".AlarmDetailsFragment">
 
     <TimePicker
+        android:id="@+id/details_time_picker"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="10dp">
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_access_alarms_24" />
+            android:src="@drawable/ic_baseline_access_alarms_24"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2dp"/>
+
         <TextView
             android:id="@+id/vibrate_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="vibrate" />
+            android:text="vibrate"
+            android:textSize="24sp" />
+
+        <CheckBox
+            android:id="@+id/checkBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="10dp">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_timer_24" />
+            android:src="@drawable/ic_baseline_timer_24"
+            android:layout_marginEnd="2dp"/>
 
         <TextView
             android:id="@+id/repeat_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-
+            android:textSize="24sp"
             android:text="repeat" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="10dp">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_add_24" />
+            android:src="@drawable/ic_baseline_add_24"
+            android:layout_marginEnd="2dp"/>
 
         <TextView
             android:id="@+id/ringtone_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-
+            android:textSize="24sp"
             android:text="ringtone" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="10dp">
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_hourglass_bottom_24" />
+            android:src="@drawable/ic_baseline_hourglass_bottom_24"
+            android:layout_marginEnd="2dp"/>
 
 
         <TextView
@@ -79,7 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-
+            android:textSize="24sp"
             android:text="delete" />
     </LinearLayout>
 

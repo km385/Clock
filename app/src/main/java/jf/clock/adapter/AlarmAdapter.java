@@ -99,8 +99,20 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
 
             //mOnItemChangedListener.handleEvent(calendar, getAdapterPosition());
 
-            NavDirections action = jf.clock.ClockFragmentDirections.actionClockFragmentToAlarmDetailsFragment();
-            Navigation.findNavController(v).navigate(action);
+            long alarmId = AlarmAdapter.this.getItemId(getAdapterPosition());
+            new FindAlarmByIdAsync(alarmId, v.getContext(), new DatabaseCallback<Alarm>() {
+                @Override
+                public void handleResponse(Alarm response) {
+                    NavDirections action = jf.clock.ClockFragmentDirections.actionClockFragmentToAlarmDetailsFragment(response);
+                    Navigation.findNavController(v).navigate(action);
+                }
+
+                @Override
+                public void handleError(Exception e) {
+
+                }
+            });
+
 
 
         }

@@ -39,6 +39,9 @@
         <action
             android:id="@+id/action_alarmDetailsFragment_to_clockFragment2"
             app:destination="@id/clockFragment" />
+        <argument
+            android:name="alarmObject"
+            app:argType="jf.clock.data.Alarm" />
     </fragment>
 
 </navigation>
