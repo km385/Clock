@@ -5,12 +5,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Calendar;
 import java.util.List;
@@ -19,6 +23,7 @@ import jf.clock.AlarmSetter;
 import jf.clock.ClockFragment;
 import jf.clock.ClockFragmentDirections;
 import jf.clock.R;
+import jf.clock.TimePicker;
 import jf.clock.data.Alarm;
 import jf.clock.repositories.DatabaseCallback;
 import jf.clock.repositories.FindAlarmByIdAsync;
@@ -53,6 +58,17 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
             super(itemView);
             itemView.setOnClickListener(this);
             mTextView = itemView.findViewById(R.id.alarm_id);
+            mTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.HOUR_OF_DAY, mAlarms.get(getAdapterPosition()).getHour());
+                    calendar.set(Calendar.MINUTE, mAlarms.get(getAdapterPosition()).getMinutes());
+
+                    mOnItemChangedListener.handleEvent(calendar, getAdapterPosition());
+                }
+            });
+
             mSwitch = itemView.findViewById(R.id.alarm_switch);
             mSwitch.setOnClickListener(v -> {
                 long alarmId = AlarmAdapter.this.getItemId(getAdapterPosition());

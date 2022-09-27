@@ -1,24 +1,11 @@
 package jf.clock;
 
-import static android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-
 import android.app.KeyguardManager;
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
@@ -28,18 +15,29 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.slider.Slider;
 
 import jf.clock.data.Alarm;
-import jf.clock.repositories.DatabaseCallback;
 
 public class AlarmActivity extends AppCompatActivity {
     private static final String TAG = "AlarmActivity";
 
     private MediaPlayer mMediaPlayer;
     private Slider mSlider;
+    private Alarm mAlarm = new Alarm();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alarm_receiver);
+        // todo re setup alarm after changes
+        // todo cancel the alarm when deleting alarm record
+        Bundle bundle = getIntent().getBundleExtra("bundle");
+        if (bundle != null){
+            mAlarm = (Alarm) bundle.getSerializable("alarm");
+            Log.i(TAG, "onCreate: " + mAlarm.getMinutes());
+        } else {
+            finish();
+        }
+
+
         mSlider = findViewById(R.id.slider);
         mSlider.setCustomThumbDrawable(R.drawable.ic_baseline_keyboard_double_arrow_right_24);
         mSlider.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {

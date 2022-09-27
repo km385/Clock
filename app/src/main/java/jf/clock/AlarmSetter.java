@@ -4,9 +4,11 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.provider.AlarmClock;
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 import jf.clock.data.Alarm;
@@ -26,8 +28,9 @@ public class AlarmSetter {
         Calendar calendar = getNextAlarmTime(alarm.getHour(), alarm.getMinutes());
         Log.i(TAG, "alarm date" + calendar.getTime());
         Intent intent = new Intent(mContext, AlarmReceiver.class);
-        intent.putExtra("date", calendar);
-        intent.putExtra("id", alarm.getId());
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("alarm", alarm);
+        intent.putExtra("bundle", bundle);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, Math.toIntExact(alarm.getId()),
                 intent, 0);
 

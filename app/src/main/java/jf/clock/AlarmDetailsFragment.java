@@ -1,10 +1,7 @@
 package jf.clock;
 
-import android.annotation.SuppressLint;
-import android.bluetooth.le.ScanSettings;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,20 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.List;
-
 import jf.clock.data.Alarm;
-import jf.clock.repositories.DatabaseCallback;
 import jf.clock.repositories.UpdateAlarmAsync;
 
 public class AlarmDetailsFragment extends Fragment implements MenuProvider {
@@ -46,7 +40,6 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -54,8 +47,14 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
 
         mTimePicker = view.findViewById(R.id.details_time_picker);
         mTimePicker.setIs24HourView(true);
-        mTimePicker.setHour(mAlarm.getHour());
-        mTimePicker.setMinute(mAlarm.getMinutes());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mTimePicker.setHour(mAlarm.getHour());
+            mTimePicker.setMinute(mAlarm.getMinutes());
+        } else {
+            mTimePicker.setCurrentHour(mAlarm.getHour());
+            mTimePicker.setCurrentMinute(mAlarm.getMinutes());
+        }
+
 
         mCheckBox = view.findViewById(R.id.checkBox);
         mCheckBox.setChecked(mAlarm.isVibrate());
@@ -102,12 +101,19 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
 
     }
 
-    @SuppressLint("NewApi")
     public void saveChanges(){
 
-        mAlarm.setHour(mTimePicker.getHour());
-        mAlarm.setMinutes(mTimePicker.getMinute());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mAlarm.setHour(mTimePicker.getHour());
+            mAlarm.setMinutes(mTimePicker.getMinute());
+        } else {
+            mAlarm.setHour(mTimePicker.getCurrentHour());
+            mAlarm.setMinutes(mTimePicker.getCurrentMinute());
+        }
+
         mAlarm.setVibrate(mCheckBox.isChecked());
         new UpdateAlarmAsync(mAlarm, requireContext(), null);
+
+        Toast.makeText(requireContext(), "changes saved", Toast.LENGTH_SHORT).show();
     }
 }

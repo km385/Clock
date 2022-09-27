@@ -25,15 +25,12 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // TODO receives only first alarm
-        Calendar calendar = (Calendar) intent.getSerializableExtra("date");
-        Log.i(TAG, "onReceive: " + calendar.getTime());
-        Log.i(TAG, "alarm: " +
-                calendar.get(Calendar.HOUR_OF_DAY) +
-                "" +
-                calendar.get(Calendar.MINUTE));
+        Bundle bundle = intent.getBundleExtra("bundle");
+        Alarm alarm = (Alarm) bundle.getSerializable("alarm");
+        Log.i(TAG, "onReceive: " + alarm.getHour() + alarm.getMinutes() + alarm.isVibrate());
 
         Intent AlarmIntent = new Intent(context, AlarmActivity.class);
+        AlarmIntent.putExtra("bundle", bundle);
         AlarmIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(AlarmIntent);
     }
