@@ -25,6 +25,16 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        /*
+            in intent is only id
+            get alarm
+            if exists fire the alarm
+            else finish
+         */
+
+        // todo check if alarm hasn't been deleted
+
+
         Bundle bundle = intent.getBundleExtra("bundle");
         Alarm alarm = (Alarm) bundle.getSerializable("alarm");
         Log.i(TAG, "onReceive: " + alarm.getHour() + alarm.getMinutes() + alarm.isVibrate());

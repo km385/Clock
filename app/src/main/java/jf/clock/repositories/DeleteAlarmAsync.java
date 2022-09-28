@@ -14,10 +14,10 @@ import jf.clock.data.Connections;
 public class DeleteAlarmAsync {
     private static final String TAG = "DeleteAlarmAsync";
     private DatabaseCallback<List<Alarm>> mCallback;
-    private int mId;
+    private long mId;
     private Context mContext;
 
-    public DeleteAlarmAsync(int id, Context context, DatabaseCallback<List<Alarm>> callback){
+    public DeleteAlarmAsync(long id, Context context, DatabaseCallback<List<Alarm>> callback){
         mId = id;
         mContext = context;
         mCallback = callback;

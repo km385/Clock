@@ -108,12 +108,9 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
 
         @Override
         public void onClick(View v) {
-            // TODO changing switch right after creating an alarm does not work
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.HOUR_OF_DAY, mAlarms.get(getAdapterPosition()).getHour());
             calendar.set(Calendar.MINUTE, mAlarms.get(getAdapterPosition()).getMinutes());
-
-            //mOnItemChangedListener.handleEvent(calendar, getAdapterPosition());
 
             long alarmId = AlarmAdapter.this.getItemId(getAdapterPosition());
             new FindAlarmByIdAsync(alarmId, v.getContext(), new DatabaseCallback<Alarm>() {

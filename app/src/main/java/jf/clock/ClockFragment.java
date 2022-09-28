@@ -54,8 +54,8 @@ public class ClockFragment extends Fragment {
             int pos = result.getInt("position");
             Calendar calendar = Calendar.getInstance();
             calendar.setTime((Date) result.getSerializable("date"));
-            // TODO change if id changes to long
-            new FindAlarmByIdAsync(Math.toIntExact(mAdapter.getItemId(pos)), requireContext(),
+
+            new FindAlarmByIdAsync(mAdapter.getItemId(pos), requireContext(),
                     new DatabaseCallback<Alarm>() {
                         @Override
                         public void handleResponse(Alarm response) {
@@ -141,7 +141,7 @@ public class ClockFragment extends Fragment {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 new DeleteAlarmAsync(
-                        Math.toIntExact(mAdapter.getItemId(viewHolder.getAdapterPosition())),
+                        mAdapter.getItemId(viewHolder.getAdapterPosition()),
                         requireContext(),
                         new DatabaseCallback<List<Alarm>>() {
                             @Override
