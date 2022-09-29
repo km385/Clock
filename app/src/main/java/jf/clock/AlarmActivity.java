@@ -33,6 +33,7 @@ public class AlarmActivity extends AppCompatActivity {
         setContentView(R.layout.alarm_receiver);
         // todo re schedule alarm after alarm details changed
         // todo cancel the alarm when deleting alarm record
+        // todo xiaomi phone, possibly battery settings prevent alarm from starting after few hours of sleep
         Bundle bundle = getIntent().getBundleExtra("bundle");
         if (bundle != null){
             mAlarm = (Alarm) bundle.getSerializable("alarm");

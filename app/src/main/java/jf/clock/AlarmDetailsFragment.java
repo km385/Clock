@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
     private MenuHost mMenuHost;
     private TimePicker mTimePicker;
     private CheckBox mCheckBox;
+    private LinearLayout mRepeatDialog;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,6 +46,15 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.alarm_details_fragment, container, false);
+
+        mRepeatDialog = (LinearLayout) view.findViewById(R.id.repeat_dialog);
+        mRepeatDialog.setOnClickListener(v -> {
+            AlarmRepeatBottomDialogFragment dialog = AlarmRepeatBottomDialogFragment.newInstance();
+            dialog.show(getChildFragmentManager(), "TAG");
+//            FragmentManager fm = getChildFragmentManager();
+//            jf.clock.TimePicker dialog = jf.clock.TimePicker.newInstance();
+//            dialog.show(fm, "dialog");
+        });
 
         mTimePicker = view.findViewById(R.id.details_time_picker);
         mTimePicker.setIs24HourView(true);

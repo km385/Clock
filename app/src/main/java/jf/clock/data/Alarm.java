@@ -16,6 +16,7 @@ import jf.clock.repositories.UpdateAlarmAsync;
 
 @Entity
 public class Alarm implements Serializable {
+    // todo represent days of week
     @PrimaryKey(autoGenerate = true)
     private long mId;
 
