@@ -94,6 +94,7 @@ public class ClockFragment extends Fragment {
                     alarm.setHour(calendar.get(Calendar.HOUR_OF_DAY));
                     alarm.setMinutes(calendar.get(Calendar.MINUTE));
                     alarm.setAlarmSet(false);
+                    alarm.setWeekdays(new boolean[] {false, false, false, false, false, false, false});
 
                     new InsertAlarmAsync(alarm, requireContext(), new DatabaseCallback<List<Alarm>>() {
                         @Override

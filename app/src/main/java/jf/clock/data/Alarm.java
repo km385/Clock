@@ -32,6 +32,17 @@ public class Alarm implements Serializable {
     @ColumnInfo(name = "is_vibrate")
     private boolean mVibrate;
 
+    @ColumnInfo(name = "week_days")
+    private boolean[] mWeekdays;
+
+    public boolean[] getWeekdays() {
+        return mWeekdays;
+    }
+
+    public void setWeekdays(boolean[] weekdays) {
+        mWeekdays = weekdays;
+    }
+
     public boolean isVibrate() {
         return mVibrate;
     }

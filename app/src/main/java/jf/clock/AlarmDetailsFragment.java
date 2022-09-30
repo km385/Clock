@@ -2,6 +2,7 @@ package jf.clock;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentResultListener;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -40,6 +42,12 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
         mAlarm = args.getAlarmObject();
         hideNavBar();
 
+        getChildFragmentManager().setFragmentResultListener("weekDays", this, (requestKey, result) -> {
+            boolean[] array = result.getBooleanArray("array");
+            Log.i(TAG, "weekdays results" + array[0]);
+            mAlarm.setWeekdays(array);
+        });
+
     }
 
     @Nullable
@@ -49,7 +57,7 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
 
         mRepeatDialog = (LinearLayout) view.findViewById(R.id.repeat_dialog);
         mRepeatDialog.setOnClickListener(v -> {
-            AlarmRepeatBottomDialogFragment dialog = AlarmRepeatBottomDialogFragment.newInstance();
+            AlarmRepeatBottomDialogFragment dialog = AlarmRepeatBottomDialogFragment.newInstance(mAlarm.getWeekdays());
             dialog.show(getChildFragmentManager(), "TAG");
 //            FragmentManager fm = getChildFragmentManager();
 //            jf.clock.TimePicker dialog = jf.clock.TimePicker.newInstance();
