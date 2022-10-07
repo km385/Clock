@@ -15,35 +15,26 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
-
-import jf.clock.data.Alarm;
 
 public class AlarmRepeatBottomDialogFragment extends BottomSheetDialogFragment implements View.OnClickListener {
     private static final String TAG = "AlarmRepeatBottomDialog";
 
     private LinearLayout mStageTwo;
     private LinearLayout mStageOne;
-    private CheckBox mCheckBox1;
-    private CheckBox mCheckBox2;
-    private CheckBox mCheckBox3;
-    private CheckBox mCheckBox4;
-    private CheckBox mCheckBox5;
-    private CheckBox mCheckBox6;
-    private CheckBox mCheckBox7;
+    private ArrayList<CheckBox> mCheckBoxes = new ArrayList<>();
 
     private boolean[] mWeekDays = new boolean[7];
 
     public static AlarmRepeatBottomDialogFragment newInstance(boolean[] alarm) {
 
         Bundle args = new Bundle();
-        args.putSerializable("alarm", alarm);
+        args.putBooleanArray("alarm", alarm);
         AlarmRepeatBottomDialogFragment fragment = new AlarmRepeatBottomDialogFragment();
         fragment.setArguments(args);
         return fragment;
     }
-
 
 
     @Nullable
@@ -56,14 +47,13 @@ public class AlarmRepeatBottomDialogFragment extends BottomSheetDialogFragment i
 
         mStageTwo = view.findViewById(R.id.stage_two);
         mStageOne = view.findViewById(R.id.first_stage);
-        
-        mCheckBox1 = mStageTwo.findViewById(R.id.layout_monday).findViewById(R.id.checkBox2);
-        mCheckBox2 = mStageTwo.findViewById(R.id.layout_tuesday).findViewById(R.id.checkBox3);
-        mCheckBox3 = mStageTwo.findViewById(R.id.layout_wednesday).findViewById(R.id.checkBox4);
-        mCheckBox4 = mStageTwo.findViewById(R.id.layout_thursday).findViewById(R.id.checkBox5);
-        mCheckBox5 = mStageTwo.findViewById(R.id.layout_friday).findViewById(R.id.checkBox6);
-        mCheckBox6 = mStageTwo.findViewById(R.id.layout_saturday).findViewById(R.id.checkBox7);
-        mCheckBox7 = mStageTwo.findViewById(R.id.layout_sunday).findViewById(R.id.checkBox8);
+        mCheckBoxes.add(mStageTwo.findViewById(R.id.layout_monday).findViewById(R.id.checkBox2));
+        mCheckBoxes.add(mStageTwo.findViewById(R.id.layout_tuesday).findViewById(R.id.checkBox3));
+        mCheckBoxes.add(mStageTwo.findViewById(R.id.layout_wednesday).findViewById(R.id.checkBox4));
+        mCheckBoxes.add(mStageTwo.findViewById(R.id.layout_thursday).findViewById(R.id.checkBox5));
+        mCheckBoxes.add(mStageTwo.findViewById(R.id.layout_friday).findViewById(R.id.checkBox6));
+        mCheckBoxes.add(mStageTwo.findViewById(R.id.layout_saturday).findViewById(R.id.checkBox7));
+        mCheckBoxes.add(mStageTwo.findViewById(R.id.layout_sunday).findViewById(R.id.checkBox8));
 
         mStageTwo.findViewById(R.id.layout_monday).setOnClickListener(this);
         mStageTwo.findViewById(R.id.layout_tuesday).setOnClickListener(this);
@@ -76,80 +66,49 @@ public class AlarmRepeatBottomDialogFragment extends BottomSheetDialogFragment i
 
 
         TextView textView = mStageOne.findViewById(R.id.custom);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCheckBox1.setChecked(mWeekDays[0]);
-                mCheckBox2.setChecked(mWeekDays[1]);
-                mCheckBox3.setChecked(mWeekDays[2]);
-                mCheckBox4.setChecked(mWeekDays[3]);
-                mCheckBox5.setChecked(mWeekDays[4]);
-                mCheckBox6.setChecked(mWeekDays[5]);
-                mCheckBox7.setChecked(mWeekDays[6]);
-                view.findViewById(R.id.first_stage).setVisibility(View.GONE);
-                view.findViewById(R.id.stage_two).setVisibility(View.VISIBLE);
+        textView.setOnClickListener(v -> {
+            Log.i(TAG, "onClick: " + mCheckBoxes.size());
+            for (int i = 0; i < mCheckBoxes.size();i++){
+                mCheckBoxes.get(i).setChecked(mWeekDays[i]);
             }
+
+            view.findViewById(R.id.first_stage).setVisibility(View.GONE);
+            view.findViewById(R.id.stage_two).setVisibility(View.VISIBLE);
         });
 
-        mStageOne.findViewById(R.id.once).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Arrays.fill(mWeekDays, false);
-            }
+        mStageOne.findViewById(R.id.once).setOnClickListener(v -> Arrays.fill(mWeekDays, false));
+
+        mStageOne.findViewById(R.id.mon_fri).setOnClickListener(v -> {
+            Arrays.fill(mWeekDays, true);
+            mWeekDays[5] = false;
+            mWeekDays[6] = false;
+
         });
 
-        mStageOne.findViewById(R.id.mon_fri).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Arrays.fill(mWeekDays, true);
-                mWeekDays[5] = false;
-                mWeekDays[6] = false;
-
-            }
-        });
-
-        mStageOne.findViewById(R.id.daily).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Arrays.fill(mWeekDays, true);
-            }
-        });
+        mStageOne.findViewById(R.id.daily).setOnClickListener(v -> Arrays.fill(mWeekDays, true));
 
         Button accept = view.findViewById(R.id.accept_button);
-        accept.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                if (mStageTwo.getVisibility() == View.VISIBLE){
-                    mWeekDays[0] = mCheckBox1.isChecked();
-                    mWeekDays[1] = mCheckBox2.isChecked();
-                    mWeekDays[2] = mCheckBox3.isChecked();
-                    mWeekDays[3] = mCheckBox4.isChecked();
-                    mWeekDays[4] = mCheckBox5.isChecked();
-                    mWeekDays[5] = mCheckBox6.isChecked();
-                    mWeekDays[6] = mCheckBox7.isChecked();
+        accept.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            if (mStageTwo.getVisibility() == View.VISIBLE){
+                for (int i = 0;i < mCheckBoxes.size();i++){
+                    mWeekDays[i] = mCheckBoxes.get(i).isChecked();
                 }
-
-
-                bundle.putBooleanArray("array", mWeekDays);
-                getParentFragmentManager().setFragmentResult("weekDays", bundle);
-                dismiss();
             }
+
+            bundle.putBooleanArray("array", mWeekDays);
+            getParentFragmentManager().setFragmentResult("weekDays", bundle);
+            dismiss();
         });
 
         Button reject = view.findViewById(R.id.reject_button);
-        reject.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        reject.setOnClickListener(v -> dismiss());
 
         return view;
     }
 
     private void setup() {
-        mWeekDays = (boolean[]) getArguments().getSerializable("alarm");
+        mWeekDays = (boolean[]) getArguments().getBooleanArray("alarm");
     }
 
 
@@ -157,38 +116,26 @@ public class AlarmRepeatBottomDialogFragment extends BottomSheetDialogFragment i
     public void onClick(View v) {
         int button = v.getId();
         if (button == R.id.layout_monday){
-            mCheckBox1.setChecked(!mCheckBox1.isChecked());
-            mWeekDays[0] = mCheckBox1.isChecked();
+            mCheckBoxes.get(0).setChecked(!mCheckBoxes.get(0).isChecked());
+            mWeekDays[0] = mCheckBoxes.get(0).isChecked();
+        }else if (button == R.id.layout_tuesday){
+            mCheckBoxes.get(1).setChecked(!mCheckBoxes.get(1).isChecked());
+            mWeekDays[1] = mCheckBoxes.get(1).isChecked();
+        }else if (button == R.id.layout_wednesday){
+            mCheckBoxes.get(2).setChecked(!mCheckBoxes.get(2).isChecked());
+            mWeekDays[2] = mCheckBoxes.get(2).isChecked();
+        }else if (button == R.id.layout_thursday){
+            mCheckBoxes.get(3).setChecked(!mCheckBoxes.get(3).isChecked());
+            mWeekDays[3] = mCheckBoxes.get(3).isChecked();
+        }else if (button == R.id.layout_friday){
+            mCheckBoxes.get(4).setChecked(!mCheckBoxes.get(4).isChecked());
+            mWeekDays[4] = mCheckBoxes.get(4).isChecked();
+        }else if (button == R.id.layout_saturday){
+            mCheckBoxes.get(5).setChecked(!mCheckBoxes.get(5).isChecked());
+            mWeekDays[5] = mCheckBoxes.get(5).isChecked();
+        }else if (button == R.id.layout_sunday){
+            mCheckBoxes.get(6).setChecked(!mCheckBoxes.get(6).isChecked());
+            mWeekDays[6] = mCheckBoxes.get(6).isChecked();
         }
-
-        if (button == R.id.layout_tuesday){
-            mCheckBox2.setChecked(!mCheckBox2.isChecked());
-            mWeekDays[1] = mCheckBox2.isChecked();
-        }
-        if (button == R.id.layout_wednesday){
-            mCheckBox3.setChecked(!mCheckBox3.isChecked());
-            mWeekDays[2] = mCheckBox3.isChecked();
-        }
-        if (button == R.id.layout_thursday){
-            mCheckBox4.setChecked(!mCheckBox4.isChecked());
-            mWeekDays[3] = mCheckBox4.isChecked();
-        }
-        if (button == R.id.layout_friday){
-            mCheckBox5.setChecked(!mCheckBox5.isChecked());
-            mWeekDays[4] = mCheckBox5.isChecked();
-        }
-        if (button == R.id.layout_saturday){
-            mCheckBox6.setChecked(!mCheckBox6.isChecked());
-            mWeekDays[5] = mCheckBox6.isChecked();
-        }
-        if (button == R.id.layout_sunday){
-            Log.i(TAG, "onClick: yoyoyo");
-            mCheckBox7.setChecked(!mCheckBox7.isChecked());
-            mWeekDays[6] = mCheckBox7.isChecked();
-        }
-        for (int i = 0; i < mWeekDays.length;i++){
-            Log.i(TAG, "current state of chosen week days: " + mWeekDays[i]);
-        }
-        Log.i(TAG, "onClick: ------------------------------");
     }
 }

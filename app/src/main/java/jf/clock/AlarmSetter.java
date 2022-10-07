@@ -5,10 +5,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.AlarmClock;
 import android.util.Log;
+import android.widget.Toast;
 
-import java.io.Serializable;
 import java.util.Calendar;
 
 import jf.clock.data.Alarm;
@@ -37,6 +36,19 @@ public class AlarmSetter {
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 pendingIntent);
+        makeToast(calendar);
+    }
+
+    private void makeToast(Calendar calendar) {
+        Calendar calendar1 = Calendar.getInstance();
+        long timeInMillis = calendar.getTimeInMillis() - calendar1.getTimeInMillis();
+        calendar1.setTimeInMillis(timeInMillis);
+        String string = "Alarm set for " +
+                (calendar1.get(Calendar.HOUR_OF_DAY) - 1) +
+                " hours and " +
+                calendar1.get(Calendar.MINUTE) +
+                " minutes from now on";
+        Toast.makeText(mContext, string, Toast.LENGTH_SHORT).show();
     }
 
     public void cancelAlarm(Alarm alarm){

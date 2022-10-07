@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -19,9 +20,10 @@ import androidx.annotation.Nullable;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentResultListener;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.Arrays;
 
 import jf.clock.data.Alarm;
 import jf.clock.repositories.UpdateAlarmAsync;
@@ -32,6 +34,7 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
     private MenuHost mMenuHost;
     private TimePicker mTimePicker;
     private CheckBox mCheckBox;
+    private TextView mRepeatTextView;
     private LinearLayout mRepeatDialog;
 
     @Override
@@ -46,6 +49,7 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
             boolean[] array = result.getBooleanArray("array");
             Log.i(TAG, "weekdays results" + array[0]);
             mAlarm.setWeekdays(array);
+            setWeekDaysText();
         });
 
     }
@@ -57,12 +61,13 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
 
         mRepeatDialog = (LinearLayout) view.findViewById(R.id.repeat_dialog);
         mRepeatDialog.setOnClickListener(v -> {
-            AlarmRepeatBottomDialogFragment dialog = AlarmRepeatBottomDialogFragment.newInstance(mAlarm.getWeekdays());
+            boolean[] alarm = Arrays.copyOf(mAlarm.getWeekdays(),7);
+            AlarmRepeatBottomDialogFragment dialog = AlarmRepeatBottomDialogFragment.newInstance(alarm);
             dialog.show(getChildFragmentManager(), "TAG");
-//            FragmentManager fm = getChildFragmentManager();
-//            jf.clock.TimePicker dialog = jf.clock.TimePicker.newInstance();
-//            dialog.show(fm, "dialog");
         });
+
+        mRepeatTextView = view.findViewById(R.id.repeat_textView);
+        setWeekDaysText();
 
         mTimePicker = view.findViewById(R.id.details_time_picker);
         mTimePicker.setIs24HourView(true);
@@ -84,12 +89,23 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
         return view;
     }
 
+    private void setWeekDaysText() {
+        if (Arrays.equals(mAlarm.getWeekdays(), new boolean[]{false, false, false, false, false, false, false})){
+            mRepeatTextView.setText("Once");
+        } else if(Arrays.equals(mAlarm.getWeekdays(), new boolean[]{true, true, true, true, true, false, false})){
+            mRepeatTextView.setText("mon-fri");
+        } else if(Arrays.equals(mAlarm.getWeekdays(), new boolean[]{true, true, true, true, true, true, true})){
+            mRepeatTextView.setText("daily");
+        } else {
+            mRepeatTextView.setText("custom");
+        }
+    }
+
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         hideNavBar();
-        //mMenuHost.removeMenuProvider(this);
     }
 
     @Override
