@@ -58,8 +58,11 @@ public class AlarmSetter {
         Intent intent = new Intent(mContext, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, Math.toIntExact(alarm.getId()),
                 intent, PendingIntent.FLAG_NO_CREATE);
-        if (alarmManager != null && pendingIntent != null)
+        if (alarmManager != null && pendingIntent != null){
             alarmManager.cancel(pendingIntent);
+            Log.i(TAG, "alarm has been canceled");
+        }
+
     }
 
     private Calendar getNextAlarmTime(int hour, int minutes, boolean[] dayOfWeek){

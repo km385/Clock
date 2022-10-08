@@ -141,13 +141,14 @@ public class ClockFragment extends Fragment {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                long id = mAdapter.getItemId(viewHolder.getAdapterPosition());
+                cancelAlarm(id);
                 new DeleteAlarmAsync(
-                        mAdapter.getItemId(viewHolder.getAdapterPosition()),
+                        id,
                         requireContext(),
                         new DatabaseCallback<List<Alarm>>() {
                             @Override
                             public void handleResponse(List<Alarm> response) {
-
                                 mAdapter.setAlarms(response);
                                 mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
                             }
@@ -188,6 +189,20 @@ public class ClockFragment extends Fragment {
             });
         }
 
+    }
+
+    private void cancelAlarm(long id) {
+        new FindAlarmByIdAsync(id, requireContext(), new DatabaseCallback<Alarm>() {
+            @Override
+            public void handleResponse(Alarm response) {
+                new AlarmSetter(requireContext()).cancelAlarm(response);
+            }
+
+            @Override
+            public void handleError(Exception e) {
+
+            }
+        });
     }
 
 

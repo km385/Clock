@@ -16,7 +16,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.slider.Slider;
 
+import java.util.Arrays;
+
 import jf.clock.data.Alarm;
+import jf.clock.repositories.DatabaseCallback;
+import jf.clock.repositories.FindAlarmByIdAsync;
+import jf.clock.repositories.UpdateAlarmAsync;
 
 public class AlarmActivity extends AppCompatActivity {
     private static final String TAG = "AlarmActivity";
@@ -31,7 +36,6 @@ public class AlarmActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alarm_receiver);
-        // todo re schedule alarm after alarm details changed
         // todo cancel the alarm when deleting alarm record
         // todo xiaomi phone, possibly battery settings prevent alarm from starting after few hours of sleep
         Bundle bundle = getIntent().getBundleExtra("bundle");
@@ -80,6 +84,44 @@ public class AlarmActivity extends AppCompatActivity {
         }
     }
 
+    private void reScheduleAlarm(){
+        AlarmSetter alarmSetter = new AlarmSetter(this);
+        new FindAlarmByIdAsync(mAlarm.getId(), this, new DatabaseCallback<Alarm>() {
+            @Override
+            public void handleResponse(Alarm response) {
+                if (checkIfAbleToReSchedule(response)){
+                    alarmSetter.setAlarm(response);
+                }else{
+                    response.setAlarmSet(false);
+                    updateAlarm(response);
+                }
+
+            }
+
+            @Override
+            public void handleError(Exception e) {
+
+            }
+        });
+    }
+
+    private void updateAlarm(Alarm alarm){
+        new UpdateAlarmAsync(alarm, this, null);
+    }
+
+    private boolean checkIfAbleToReSchedule(Alarm alarm){
+        final boolean[] value = new boolean[1];
+
+        for (boolean b : alarm.getWeekdays()) {
+            if (b) {
+                value[0] = true;
+                break;
+
+            }
+        }
+        return value[0];
+    }
+
 
     private void setupSound() {
         mMediaPlayer= MediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI);
@@ -112,6 +154,7 @@ public class AlarmActivity extends AppCompatActivity {
     protected void onDestroy() {
         if (mMediaPlayer != null) mMediaPlayer.stop();
         if (mVibrator != null) mVibrator.cancel();
+        reScheduleAlarm();
         super.onDestroy();
 
     }
