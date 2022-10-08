@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Arrays;
 import java.util.Calendar;
 
 import jf.clock.data.Alarm;
@@ -24,7 +25,7 @@ public class AlarmSetter {
     public void setAlarm(Alarm alarm){
         AlarmManager alarmManager = (AlarmManager) mContext
                 .getSystemService(Context.ALARM_SERVICE);
-        Calendar calendar = getNextAlarmTime(alarm.getHour(), alarm.getMinutes());
+        Calendar calendar = getNextAlarmTime(alarm.getHour(), alarm.getMinutes(), alarm.getWeekdays());
         Log.i(TAG, "alarm date" + calendar.getTime());
         Intent intent = new Intent(mContext, AlarmReceiver.class);
         Bundle bundle = new Bundle();
@@ -61,7 +62,7 @@ public class AlarmSetter {
             alarmManager.cancel(pendingIntent);
     }
 
-    private Calendar getNextAlarmTime(int hour, int minutes){
+    private Calendar getNextAlarmTime(int hour, int minutes, boolean[] dayOfWeek){
         Calendar nextTime = Calendar.getInstance();
         Calendar currentTime = Calendar.getInstance();
         nextTime.set(Calendar.HOUR_OF_DAY, hour);
@@ -73,6 +74,44 @@ public class AlarmSetter {
             nextTime.add(Calendar.DAY_OF_YEAR, 1);
         }
 
+        // check if user set specific day for an alarm
+        for (boolean b : dayOfWeek) {
+            if (b) {
+                checkDeyOfWeek(dayOfWeek, nextTime);
+                break;
+            }
+        }
+
         return nextTime;
+    }
+
+    private void checkDeyOfWeek(boolean[] dayOfWeek, Calendar nextTime) {
+        loop: while(true){
+            switch (nextTime.get(Calendar.DAY_OF_WEEK)){
+                case 1:
+                    if (dayOfWeek[6]) break loop;
+                    break;
+                case 2:
+                    if (dayOfWeek[0]) break loop;
+                    break;
+                case 3:
+                    if (dayOfWeek[1]) break loop;
+                    break;
+                case 4:
+                    if (dayOfWeek[2]) break loop;
+                    break;
+                case 5:
+                    if (dayOfWeek[3]) break loop;
+                    break;
+                case 6:
+                    if (dayOfWeek[4]) break loop;
+                    break;
+                case 7:
+                    if (dayOfWeek[5]) break loop;
+                    break;
+
+            }
+            nextTime.add(Calendar.DAY_OF_YEAR, 1);
+        }
     }
 }
