@@ -23,11 +23,7 @@ import java.util.List;
 import jf.clock.adapter.AlarmAdapter;
 import jf.clock.data.Alarm;
 import jf.clock.repositories.DatabaseCallback;
-import jf.clock.repositories.DeleteAlarmAsync;
-import jf.clock.repositories.FindAlarmByIdAsync;
-import jf.clock.repositories.GetAlarmsAsync;
-import jf.clock.repositories.InsertAlarmAsync;
-import jf.clock.repositories.UpdateAlarmTimeAsync;
+import jf.clock.repositories.DbQueries;
 
 public class ClockFragment extends Fragment {
     private static final String TAG = "ClockFragment";
@@ -36,11 +32,13 @@ public class ClockFragment extends Fragment {
     private ItemTouchHelper mItemTouchHelper;
     private AlarmAdapter mAdapter;
     private FloatingActionButton mFab;
+    private DbQueries mDbQueries;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDbQueries = new DbQueries(requireContext());
     }
 
     @Nullable
@@ -55,25 +53,17 @@ public class ClockFragment extends Fragment {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime((Date) result.getSerializable("date"));
 
-            new FindAlarmByIdAsync(mAdapter.getItemId(pos), requireContext(),
-                    new DatabaseCallback<Alarm>() {
-                        @Override
-                        public void handleResponse(Alarm response) {
-                            response.setHour(calendar.get(Calendar.HOUR_OF_DAY));
-                            response.setMinutes(calendar.get(Calendar.MINUTE));
-                            new UpdateAlarmTimeAsync(response, requireContext(),
-                                    new DatabaseCallback<List<Alarm>>() {
-                                        @Override
-                                        public void handleResponse(List<Alarm> response) {
-                                            mAdapter.setAlarms(response);
-                                            mAdapter.notifyItemChanged(pos);
-                                        }
+            mDbQueries.findAlarm(mAdapter.getItemId(pos), new DatabaseCallback<Alarm>() {
+                @Override
+                public void handleResponse(Alarm response) {
+                    response.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+                    response.setMinutes(calendar.get(Calendar.MINUTE));
 
-                                        @Override
-                                        public void handleError(Exception e) {
-                                            Log.e(TAG, "handleError: ", e);
-                                        }
-                                    });
+                    mDbQueries.updateAlarm(response, new DatabaseCallback<List<Alarm>>() {
+                        @Override
+                        public void handleResponse(List<Alarm> response) {
+                            mAdapter.setAlarms(response);
+                            mAdapter.notifyItemChanged(pos);
                         }
 
                         @Override
@@ -81,6 +71,13 @@ public class ClockFragment extends Fragment {
                             Log.e(TAG, "handleError: ", e);
                         }
                     });
+                }
+
+                @Override
+                public void handleError(Exception e) {
+
+                }
+            });
 
 
         });
@@ -96,7 +93,7 @@ public class ClockFragment extends Fragment {
                     alarm.setAlarmSet(false);
                     alarm.setWeekdays(new boolean[] {false, false, false, false, false, false, false});
 
-                    new InsertAlarmAsync(alarm, requireContext(), new DatabaseCallback<List<Alarm>>() {
+                    mDbQueries.insertAlarm(alarm, new DatabaseCallback<List<Alarm>>() {
                         @Override
                         public void handleResponse(List<Alarm> response) {
                             mAdapter.setAlarms(response);
@@ -107,7 +104,7 @@ public class ClockFragment extends Fragment {
                         public void handleError(Exception e) {
 
                         }
-                        });
+                    });
                 });
 
         return v;
@@ -143,21 +140,18 @@ public class ClockFragment extends Fragment {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 long id = mAdapter.getItemId(viewHolder.getAdapterPosition());
                 cancelAlarm(id);
-                new DeleteAlarmAsync(
-                        id,
-                        requireContext(),
-                        new DatabaseCallback<List<Alarm>>() {
-                            @Override
-                            public void handleResponse(List<Alarm> response) {
-                                mAdapter.setAlarms(response);
-                                mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                            }
+                mDbQueries.deleteAlarm(id, new DatabaseCallback<List<Alarm>>() {
+                    @Override
+                    public void handleResponse(List<Alarm> response) {
+                        mAdapter.setAlarms(response);
+                        mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+                    }
 
-                            @Override
-                            public void handleError(Exception e) {
+                    @Override
+                    public void handleError(Exception e) {
 
-                            }
-                        });
+                    }
+                });
             }
         });
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
@@ -167,7 +161,7 @@ public class ClockFragment extends Fragment {
     public void setupAdapter(){
         Log.i(TAG, "setupAdapter");
         if (isAdded()){
-            new GetAlarmsAsync(requireContext(), new DatabaseCallback<List<Alarm>>() {
+            mDbQueries.getAlarms(new DatabaseCallback<List<Alarm>>() {
                 @Override
                 public void handleResponse(List<Alarm> response) {
                     mAdapter = new AlarmAdapter(response ,requireContext());
@@ -192,7 +186,7 @@ public class ClockFragment extends Fragment {
     }
 
     private void cancelAlarm(long id) {
-        new FindAlarmByIdAsync(id, requireContext(), new DatabaseCallback<Alarm>() {
+        mDbQueries.findAlarm(id, new DatabaseCallback<Alarm>() {
             @Override
             public void handleResponse(Alarm response) {
                 new AlarmSetter(requireContext()).cancelAlarm(response);

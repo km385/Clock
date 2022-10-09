@@ -1,18 +1,10 @@
 package jf.clock.data;
 
-import android.content.Context;
-
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
-import jf.clock.repositories.DatabaseCallback;
-import jf.clock.repositories.InsertAlarmAsync;
-import jf.clock.repositories.UpdateAlarmAsync;
 
 @Entity
 public class Alarm implements Serializable {

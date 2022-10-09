@@ -5,29 +5,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Calendar;
 import java.util.List;
 
 import jf.clock.AlarmSetter;
 import jf.clock.ClockFragment;
-import jf.clock.ClockFragmentDirections;
 import jf.clock.R;
-import jf.clock.TimePicker;
 import jf.clock.data.Alarm;
 import jf.clock.repositories.DatabaseCallback;
-import jf.clock.repositories.FindAlarmByIdAsync;
-import jf.clock.repositories.UpdateAlarmStatusAsync;
+import jf.clock.repositories.DbQueries;
 
 public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
     private List<Alarm> mAlarms;
@@ -35,6 +28,7 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
     private OnItemChangedListener mOnItemChangedListener;
     private AlarmSetter mAlarmSetter;
     private Context mContext;
+    private DbQueries mDbQueries;
 
     public interface OnItemChangedListener{
         void handleEvent(Calendar calendar, int pos);
@@ -48,6 +42,7 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
         mAlarms = alarms;
         mContext = context;
         mAlarmSetter = new AlarmSetter(mContext);
+        mDbQueries = new DbQueries(context);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -72,26 +67,23 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
             mSwitch = itemView.findViewById(R.id.alarm_switch);
             mSwitch.setOnClickListener(v -> {
                 long alarmId = AlarmAdapter.this.getItemId(getAdapterPosition());
-                new UpdateAlarmStatusAsync(alarmId, mSwitch.isChecked(), mContext,
-                        new DatabaseCallback<List<Alarm>>() {
-                            @Override
-                            public void handleResponse(List<Alarm> response) {
-                                if (mSwitch.isChecked()) {
-                                    setAlarm(alarmId);
-                                } else {
-                                    cancelAlarm(alarmId);
-                                }
-                                setAlarms(response);
-                                notifyItemChanged(getAdapterPosition());
-                            }
+                mDbQueries.updateStatus(alarmId, mSwitch.isChecked(), new DatabaseCallback<List<Alarm>>() {
+                    @Override
+                    public void handleResponse(List<Alarm> response) {
+                        if (mSwitch.isChecked()) {
+                            setAlarm(alarmId);
+                        } else {
+                            cancelAlarm(alarmId);
+                        }
+                        setAlarms(response);
+                        notifyItemChanged(getAdapterPosition());
+                    }
 
-                            @Override
-                            public void handleError(Exception e) {
+                    @Override
+                    public void handleError(Exception e) {
 
-                            }
-                        });
-
-                //Log.i(TAG, "id: " + mAlarms.get(getAdapterPosition()).getId());
+                    }
+                });
             });
 
             // do things with your elements in each row
@@ -113,7 +105,7 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
             calendar.set(Calendar.MINUTE, mAlarms.get(getAdapterPosition()).getMinutes());
 
             long alarmId = AlarmAdapter.this.getItemId(getAdapterPosition());
-            new FindAlarmByIdAsync(alarmId, v.getContext(), new DatabaseCallback<Alarm>() {
+            mDbQueries.findAlarm(alarmId, new DatabaseCallback<Alarm>() {
                 @Override
                 public void handleResponse(Alarm response) {
                     NavDirections action = jf.clock.ClockFragmentDirections.actionClockFragmentToAlarmDetailsFragment(response);
@@ -159,7 +151,7 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
     }
 
     private void setAlarm(long id) {
-        new FindAlarmByIdAsync(id, mContext, new DatabaseCallback<Alarm>() {
+        mDbQueries.findAlarm(id, new DatabaseCallback<Alarm>() {
             @Override
             public void handleResponse(Alarm response) {
                 mAlarmSetter.setAlarm(response);
@@ -173,10 +165,9 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder>{
     }
 
     private void cancelAlarm(long id) {
-        new FindAlarmByIdAsync(id, mContext, new DatabaseCallback<Alarm>() {
+        mDbQueries.findAlarm(id, new DatabaseCallback<Alarm>() {
             @Override
             public void handleResponse(Alarm response) {
-
                 mAlarmSetter.cancelAlarm(response);
             }
 

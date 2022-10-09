@@ -16,12 +16,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.slider.Slider;
 
-import java.util.Arrays;
-
 import jf.clock.data.Alarm;
 import jf.clock.repositories.DatabaseCallback;
-import jf.clock.repositories.FindAlarmByIdAsync;
-import jf.clock.repositories.UpdateAlarmAsync;
+import jf.clock.repositories.DbQueries;
 
 public class AlarmActivity extends AppCompatActivity {
     private static final String TAG = "AlarmActivity";
@@ -31,6 +28,7 @@ public class AlarmActivity extends AppCompatActivity {
     private Slider mSlider;
     private Alarm mAlarm = new Alarm();
     private float mStartTrackingValue;
+    private DbQueries mDbQueries;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,7 +43,7 @@ public class AlarmActivity extends AppCompatActivity {
         } else {
             finish();
         }
-
+        mDbQueries = new DbQueries(this);
         mSlider = findViewById(R.id.slider);
         mSlider.setCustomThumbDrawable(R.drawable.ic_baseline_keyboard_double_arrow_right_24);
         mSlider.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
@@ -86,7 +84,7 @@ public class AlarmActivity extends AppCompatActivity {
 
     private void reScheduleAlarm(){
         AlarmSetter alarmSetter = new AlarmSetter(this);
-        new FindAlarmByIdAsync(mAlarm.getId(), this, new DatabaseCallback<Alarm>() {
+        mDbQueries.findAlarm(mAlarm.getId(), new DatabaseCallback<Alarm>() {
             @Override
             public void handleResponse(Alarm response) {
                 if (checkIfAbleToReSchedule(response)){
@@ -95,7 +93,6 @@ public class AlarmActivity extends AppCompatActivity {
                     response.setAlarmSet(false);
                     updateAlarm(response);
                 }
-
             }
 
             @Override
@@ -106,7 +103,7 @@ public class AlarmActivity extends AppCompatActivity {
     }
 
     private void updateAlarm(Alarm alarm){
-        new UpdateAlarmAsync(alarm, this, null);
+        mDbQueries.updateAlarm(alarm, null);
     }
 
     private boolean checkIfAbleToReSchedule(Alarm alarm){

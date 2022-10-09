@@ -26,7 +26,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.Arrays;
 
 import jf.clock.data.Alarm;
-import jf.clock.repositories.UpdateAlarmAsync;
+import jf.clock.repositories.DbQueries;
 
 public class AlarmDetailsFragment extends Fragment implements MenuProvider {
     private static final String TAG = "AlarmDetailsFragment";
@@ -36,10 +36,13 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
     private CheckBox mCheckBox;
     private TextView mRepeatTextView;
     private LinearLayout mRepeatDialog;
+    private DbQueries mDbQueries;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mDbQueries = new DbQueries(requireContext());
         AlarmDetailsFragmentArgs args = AlarmDetailsFragmentArgs.fromBundle(getArguments());
 
         mAlarm = args.getAlarmObject();
@@ -147,7 +150,7 @@ public class AlarmDetailsFragment extends Fragment implements MenuProvider {
         }
 
         mAlarm.setVibrate(mCheckBox.isChecked());
-        new UpdateAlarmAsync(mAlarm, requireContext(), null);
+        mDbQueries.updateAlarm(mAlarm, null);
 
         Toast.makeText(requireContext(), "changes saved", Toast.LENGTH_SHORT).show();
     }
